@@ -1,4 +1,7 @@
-## DBow2 
+#### 注意
+* 源码里边会自动检测是否有dlib文件，如果有的话那么会用系统的；如果没有那么会自己下载dlib编译。
+
+#### DBow2 
 Fork <https://github.com/dorian3d/DBoW2>  
 
 #### 做了一些改动：

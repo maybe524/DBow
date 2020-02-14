@@ -19,11 +19,11 @@ using namespace std;
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-void loadFeatures(vector<vector<cv::Mat > > &features);
+void loadFeatures(const char *imageDIR, vector<vector<cv::Mat > > &features);
 void changeStructure(const cv::Mat &plain, vector<cv::Mat> &out);
 void testVocCreation(const vector<vector<cv::Mat > > &features);
 void testDatabase(const vector<vector<cv::Mat > > &features);
-
+void testVocCreation(const vector<vector<cv::Mat > > &featuresSRC, const vector<vector<cv::Mat > > &featuresDEST);
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -39,24 +39,56 @@ void wait()
 }
 
 // ----------------------------------------------------------------------------
+vector<vector<cv::Mat > > features1;
+vector<vector<cv::Mat > > features2;
+
+void aibrainTest1(void)
+{
+	cout << "aibrainTest1... start" << endl;
+	loadFeatures("images1/", features1);	
+	testVocCreation(features1);	
+	wait();
+	// testDatabase(features1);
+	cout << "aibrainTest1... end" << endl;
+}
+
+void aibrainTest2(void)
+{
+	cout << "aibrainTest2... start" << endl;
+	loadFeatures("images2/", features2);	
+	testVocCreation(features1, features2);	
+	wait();
+	// testDatabase(features2);
+	cout << "aibrainTest2... end" << endl;
+}
+
+// 原始的代码
+void aibrainTest(void)
+{
+	cout << "aibrainTest... start" << endl;
+	loadFeatures("images/", features1);	
+	testVocCreation(features1);	
+	wait();
+	testDatabase(features1);
+	cout << "aibrainTest1... end" << endl;
+}
 
 int main()
 {
-  vector<vector<cv::Mat > > features;
-  loadFeatures(features);
-
-  testVocCreation(features);
-
-  wait();
-
-  testDatabase(features);
-
-  return 0;
+#if 0
+	// 原始的代码
+	aibrainTest();
+#else
+	// 测试代码
+	aibrainTest1();
+	aibrainTest2();
+#endif
+	return 0;
 }
 
 // ----------------------------------------------------------------------------
 
-void loadFeatures(vector<vector<cv::Mat > > &features)
+void loadFeatures(const char *imageDIR, vector<vector<cv::Mat > > &features)
 {
   features.clear();
   features.reserve(NIMAGES);
@@ -67,7 +99,8 @@ void loadFeatures(vector<vector<cv::Mat > > &features)
   for(int i = 0; i < NIMAGES; ++i)
   {
     stringstream ss;
-    ss << "images/" << i << ".png";
+    ss << imageDIR << i << ".png";
+	cout << "ss: " << ss.str() << endl;
 
     cv::Mat image = cv::imread(ss.str(), 0);
     cv::Mat mask;
@@ -94,6 +127,46 @@ void changeStructure(const cv::Mat &plain, vector<cv::Mat> &out)
 }
 
 // ----------------------------------------------------------------------------
+// 测试用featuresSRC的特征值去匹配图片featuresDEST
+void testVocCreation(const vector<vector<cv::Mat > > &featuresSRC, const vector<vector<cv::Mat > > &featuresDEST)
+{
+  // branching factor and depth levels
+  const int k = 10;
+  const int L = 5;
+  const WeightingType weight = TF_IDF;
+  const ScoringType score = L1_NORM;
+
+  OrbVocabulary voc(k, L, weight, score);
+
+  cout << "Creating a " << k << "^" << L << " vocabulary..." << endl;
+  voc.create(featuresSRC);
+  cout << "... done!" << endl;
+
+  cout << "Vocabulary information: " << endl
+  << voc << endl << endl;
+
+  // lets do something with this vocabulary
+  cout << "Matching images against themselves: " << endl;
+  BowVector v1, v2;
+  for(int i = 0; i < NIMAGES; i++)
+  {
+    voc.transform(featuresSRC[i], v1);
+    for(int j = 0; j < NIMAGES; j++)
+    {
+      voc.transform(featuresDEST[j], v2);
+
+      double score = voc.score(v1, v2);
+      cout << "Image " << i << " vs Image " << j << ": " << score << endl;
+    }
+  }
+
+  // save the vocabulary to disk
+  cout << endl << "Saving vocabulary..." << endl;
+  voc.save("voc.yml.gz");
+  voc.saveToTextFile("Myvoc.txt");
+  cout << "Done" << endl;
+}
+
 
 void testVocCreation(const vector<vector<cv::Mat > > &features)
 {

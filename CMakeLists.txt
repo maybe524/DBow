@@ -5,6 +5,10 @@ include(ExternalProject)
 option(BUILD_DBoW2   "Build DBoW2"            ON)
 option(BUILD_voc    "Build voc application" ON)
 
+# Add by huangxiaowen@aibrain.com
+# set(DBOW2_INCLUDE "/home/aibrain/Project/aibrain_dev_mynt_eye_s1030ir120mono_sdk2.4.0/vendor/aibrain/catkin_ws/src/MYNT-EYE-ORB-SLAM2-Sample")
+# set(EIGEN3 "/home/aibrain/Project/aibrain_dev_mynt_eye_s1030ir120mono_sdk2.4.0/3rdparty/eigen3")
+
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build." FORCE)
   set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release"
@@ -39,10 +43,12 @@ include_directories(${OpenCV_INCLUDE_DIRS})
 find_package(Boost REQUIRED)
 include_directories(${Boost_INCLUDE_DIR})
 
+message("DLib_FOUND 1: ${DLib_FOUND}")
 find_package(DLib QUIET 
   PATHS ${DEPENDENCY_INSTALL_DIR})
+message("DLib_FOUND 2: ${DLib_FOUND}")
 if(${DLib_FOUND})
-  message("DLib library found, using it from the system")
+  message("DLib library found, using it from the system, DLib_INCLUDE_DIRS: ${DLib_INCLUDE_DIRS}")
   include_directories(${DLib_INCLUDE_DIRS})
   add_custom_target(Dependencies)
 else(${DLib_FOUND})
@@ -71,7 +77,9 @@ endif(BUILD_DBoW2)
 if(BUILD_voc)
   add_executable(voc voc/voc.cpp)
   target_link_libraries(voc ${PROJECT_NAME} ${OpenCV_LIBS} ${DLib_LIBS})
-  file(COPY voc/images DESTINATION ${CMAKE_BINARY_DIR}/)
+  file(COPY voc/images  DESTINATION ${CMAKE_BINARY_DIR}/)
+  file(COPY voc/images1 DESTINATION ${CMAKE_BINARY_DIR}/)
+  file(COPY voc/images2 DESTINATION ${CMAKE_BINARY_DIR}/)
 endif(BUILD_voc)
 
 configure_file(src/DBoW2.cmake.in

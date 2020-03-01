@@ -9,6 +9,9 @@ option(BUILD_voc    "Build voc application" ON)
 # set(DBOW2_INCLUDE "/home/aibrain/Project/aibrain_dev_mynt_eye_s1030ir120mono_sdk2.4.0/vendor/aibrain/catkin_ws/src/MYNT-EYE-ORB-SLAM2-Sample")
 # set(EIGEN3 "/home/aibrain/Project/aibrain_dev_mynt_eye_s1030ir120mono_sdk2.4.0/3rdparty/eigen3")
 
+# 打开桶形畸变测试程序
+set(BUILD_CORR_BARREL_DISTORTION 1)
+
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build." FORCE)
   set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release"
@@ -81,6 +84,11 @@ if(BUILD_voc)
   file(COPY voc/images1 DESTINATION ${CMAKE_BINARY_DIR}/)
   file(COPY voc/images2 DESTINATION ${CMAKE_BINARY_DIR}/)
 endif(BUILD_voc)
+
+if(BUILD_CORR_BARREL_DISTORTION)
+  add_executable(corr_barrel_distortion test/CorrectionBarrelDistortion.cpp)
+  target_link_libraries(corr_barrel_distortion ${PROJECT_NAME} ${OpenCV_LIBS})
+endif(BUILD_DBoW2)
 
 configure_file(src/DBoW2.cmake.in
   "${PROJECT_BINARY_DIR}/DBoW2Config.cmake" @ONLY)

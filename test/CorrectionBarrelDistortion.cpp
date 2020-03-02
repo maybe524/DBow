@@ -1,9 +1,9 @@
 #include <iostream>
 
-#include <opencv2/core.hpp>                 /////Mat         核心库
-#include <opencv2/imgcodecs.hpp>            ////imread    读图片函数
-#include <opencv2/highgui.hpp>              ////namedWindow imshow waitKey    界面
-#include <opencv2/imgproc.hpp>              ////图像处理
+#include <opencv2/core.hpp>                 // Mat 核心库
+#include <opencv2/imgcodecs.hpp>            // imread读图片函数
+#include <opencv2/highgui.hpp>              // namedWindow imshow waitKey    界面
+#include <opencv2/imgproc.hpp>              // 图像处理
 
 #include <math.h>
 
@@ -14,7 +14,7 @@ using namespace std;
 static void testByWeiBo(void)
 {
     long time = clock();
-    char *filename = "1.png";   //图像路径
+    char *filename = "1.png";   // 图像路径
     Mat img = imread(filename);
     Mat drcimg(img.rows, img.cols, CV_8UC3);
     cv::imshow("矫正前", img);
@@ -31,12 +31,10 @@ static void testByWeiBo(void)
             r = sqrt((row - lenscenter.y) * (row - lenscenter.y) + (cols - lenscenter.x) * (cols - lenscenter.x));
             s = 0.9998 - 4.2932 * pow(10, -4) * r + 3.4327 * pow(10, -6) * pow(r, 2) -
                 2.8526 * pow(10, -9) * pow(r, 3) + 9.8223 * pow(10, -13) * pow(r, 4);   // 比例
-            mCorrectPoint = cvPoint2D32f((cols - lenscenter.x) / s * 1.35 + lenscenter.x,
-                                         (row - lenscenter.y) / s * 1.35 + lenscenter.y);
+            mCorrectPoint = cvPoint2D32f((cols - lenscenter.x) / s * 1.11 + lenscenter.x,
+                                         (row - lenscenter.y) / s * 1.11 + lenscenter.y);
             // 越界判断
-            if (mCorrectPoint.y < 0 || mCorrectPoint.y >= img.rows - 1)
-                continue;
-            if (mCorrectPoint.x < 0 || mCorrectPoint.x >= img.cols - 1)
+            if ((mCorrectPoint.y < 0 || mCorrectPoint.y >= img.rows - 1) || (mCorrectPoint.x < 0 || mCorrectPoint.x >= img.cols - 1))
                 continue;
             src_a = cvPoint((int) mCorrectPoint.x, (int) mCorrectPoint.y);
             src_b = cvPoint(src_a.x + 1, src_a.y);
